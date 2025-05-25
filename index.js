@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,8 +17,10 @@ async function notifyTelegram(data) {
 🆔 *SubID:* \`${data.subid}\`
 🌐 *ZoneID:* \`${data.zoneid}\`
 📍 *IP:* \`${data.ip}\`
-📱 *Thiết bị:* \`${data.ua}\`
 🗺 *Country:* \`${data.country}\`
+🏙 *City:* \`${data.city}\`
+🌐 *ISP:* \`${data.isp}\`
+📱 *Thiết bị:* \`${data.ua}\`
 📟 *Device:* \`${data.device}\`
 🧠 *OS:* \`${data.os}\`
 🕹 *Status:* \`${data.status}\`
@@ -68,7 +71,6 @@ function logClick(data) {
 app.get('/', async (req, res) => {
   const subid = req.query.subid || 'unknown';
   const zoneid = req.query.zoneid || 'unknown';
-  const country = req.query.country || 'VN';
   const device = req.query.device || 'unknown';
   const os = req.query.os || 'unknown';
   const ipRaw = req.headers['x-forwarded-for'] || req.ip;
@@ -77,9 +79,21 @@ app.get('/', async (req, res) => {
   const isValid = ua.toLowerCase().includes('mozilla');
   const status = isValid ? 'valid' : 'invalid';
 
-  const clickData = { subid, zoneid, ip, ua, country, device, os, status };
+  let country = 'unknown';
+  let city = 'unknown';
+  let isp = 'unknown';
 
-  console.log(`📥 Click từ IP ${ip} – Status: ${status}`);
+  try {
+    const geo = await axios.get(`http://ip-api.com/json/${ip}`);
+    country = geo.data.country || 'unknown';
+    city = geo.data.city || 'unknown';
+    isp = geo.data.isp || 'unknown';
+  } catch (err) {
+    console.error('❌ Không lấy được IP location:', err.message);
+  }
+
+  const clickData = { subid, zoneid, ip, ua, country, city, isp, device, os, status };
+  console.log(`📥 Click từ IP ${ip} – ${country}/${city} – ISP: ${isp} – Status: ${status}`);
   logClick(clickData);
   await notifyTelegram(clickData);
 
