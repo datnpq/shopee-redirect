@@ -108,16 +108,6 @@ app.get('/', async (req, res) => {
   res.send(html);
 });
 
-// Route /stats để xem logs
-app.get('/stats', (req, res) => {
-  if (fs.existsSync(CLICK_LOG_PATH)) {
-    const logs = JSON.parse(fs.readFileSync(CLICK_LOG_PATH));
-    res.json(logs);
-  } else {
-    res.json([]);
-  }
-});
-
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
