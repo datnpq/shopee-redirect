@@ -142,6 +142,21 @@ app.get('/dashboard', (req, res) => {
 // Cho phép truy cập file clicks.json từ frontend
 app.use(express.static(__dirname));
 
+app.use(express.json({ limit: '2mb' }));
+
+app.post('/save-clicks', (req, res) => {
+  try {
+    const updatedClicks = req.body;
+    fs.writeFileSync(CLICK_LOG_PATH, JSON.stringify(updatedClicks, null, 2));
+    res.status(200).send({ message: 'Đã lưu clicks.json thành công.' });
+    console.log('✅ clicks.json đã được cập nhật từ dashboard.');
+  } catch (err) {
+    console.error('❌ Lỗi khi ghi clicks.json:', err);
+    res.status(500).send({ error: 'Ghi file thất bại' });
+  }
+});
+
+
 app.listen(PORT, () => {
   console.log(`🚀 Shopee redirect bot running at http://localhost:${PORT}`);
 });
