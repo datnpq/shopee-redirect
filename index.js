@@ -10,18 +10,18 @@ const TELEGRAM_BOT_TOKEN = '7206799463:AAFU0vGm5NBkC1qWfwF24tlCRTn_O6yxO3o';
 const TELEGRAM_CHAT_ID = '5479175202';
 const CLICK_LOG_PATH = path.join(__dirname, 'clicks.json');
 
-const country = req.query.country || 'VN';
-const device = req.query.device || 'unknown';
-const os = req.query.os || 'unknown';
-
 // Gửi tin nhắn Telegram
-async function notifyTelegram(subid, zoneid, ip, ua) {
- const message = `📲 *Click Mới Về Shopee!*
-🆔 *SubID:* \`${subid}\`
-🌐 *ZoneID:* \`${zoneid}\`
-📍 *IP:* \`${ip}\`
-📱 *Thiết bị:* \`${ua}\`
-🕹 *Thời gian:* ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`;
+async function notifyTelegram(data) {
+  const message = `📲 *Click Mới Về Shopee!*
+🆔 *SubID:* \`${data.subid}\`
+🌐 *ZoneID:* \`${data.zoneid}\`
+📍 *IP:* \`${data.ip}\`
+📱 *Thiết bị:* \`${data.ua}\`
+🗺 *Country:* \`${data.country}\`
+📟 *Device:* \`${data.device}\`
+🧠 *OS:* \`${data.os}\`
+🕹 *Status:* \`${data.status}\`
+🕒 *Thời gian:* ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`;
 
   try {
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -39,44 +39,49 @@ async function notifyTelegram(subid, zoneid, ip, ua) {
 }
 
 // Lưu log click
-function logClick({ subid, zoneid, ip, ua }) {
+function logClick(data) {
   const click = {
     time: new Date().toISOString(),
-    subid,
-    zoneid,
-    ip,
-    ua
+    ...data
   };
 
   let log = [];
   if (fs.existsSync(CLICK_LOG_PATH)) {
     try {
-  log = JSON.parse(fs.readFileSync(CLICK_LOG_PATH, 'utf-8'));
-} catch (e) {
-  log = [];
-}
+      log = JSON.parse(fs.readFileSync(CLICK_LOG_PATH, 'utf-8'));
+    } catch (e) {
+      console.error('❌ Lỗi đọc clicks.json, khởi tạo lại');
+      log = [];
+    }
   }
 
-  log.unshift(click); // mới nhất ở đầu
-  fs.writeFileSync(CLICK_LOG_PATH, JSON.stringify(log.slice(0, 1000), null, 2)); // giữ tối đa 1000 dòng
+  log.unshift(click); // mới nhất lên đầu
+  try {
+    fs.writeFileSync(CLICK_LOG_PATH + '.bak', JSON.stringify(log.slice(0, 1000), null, 2));
+    fs.writeFileSync(CLICK_LOG_PATH, JSON.stringify(log.slice(0, 1000), null, 2));
+  } catch (err) {
+    console.error('❌ Lỗi ghi file clicks.json:', err);
+  }
 }
 
 // Route redirect chính
 app.get('/', async (req, res) => {
   const subid = req.query.subid || 'unknown';
   const zoneid = req.query.zoneid || 'unknown';
+  const country = req.query.country || 'VN';
+  const device = req.query.device || 'unknown';
+  const os = req.query.os || 'unknown';
   const ipRaw = req.headers['x-forwarded-for'] || req.ip;
   const ip = ipRaw.split(',')[0].trim();
   const ua = req.headers['user-agent'] || 'unknown';
-  const isValid = ua.toLowerCase().includes('mozilla') || req.url.includes('redirect_to_shopee');
+  const isValid = ua.toLowerCase().includes('mozilla');
+  const status = isValid ? 'valid' : 'invalid';
 
-  if (isValid) {
-    console.log(`📥 Click hợp lệ từ IP ${ip}`);
-    logClick({ subid, zoneid, ip, ua });
-    await notifyTelegram(subid, zoneid, ip, ua);
-  } else {
-    console.log(`🤖 Bỏ qua click không hợp lệ từ IP ${ip}`);
-  }
+  const clickData = { subid, zoneid, ip, ua, country, device, os, status };
+
+  console.log(`📥 Click từ IP ${ip} – Status: ${status}`);
+  logClick(clickData);
+  await notifyTelegram(clickData);
 
   const html = `
   <!DOCTYPE html>
@@ -117,9 +122,8 @@ app.get('/', async (req, res) => {
   res.send(html);
 });
 
+// Route dashboard công khai
 app.get('/dashboard', (req, res) => {
-  const auth = req.query.key;
-  if (auth !== 'D@t12345') return res.status(403).send('🚫 Không có quyền truy cập');
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 

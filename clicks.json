@@ -1,16 +1,12 @@
 [
   {
-    "time": "2025-05-25T16:45:12Z",
-    "subid": "sub123",
-    "zoneid": "zoneA",
-    "ip": "116.109.100.172",
-    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)..."
-  },
-  {
-    "time": "2025-05-25T16:47:09Z",
-    "subid": "sub456",
-    "zoneid": "zoneB",
-    "ip": "103.28.37.105",
-    "ua": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X)..."
+    "time": "2025-05-25T13:47:44.225Z",
+    "subid": "unknown",
+    "zoneid": "unknown",
+    "ip": "::1",
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+    "country": "VN",
+    "device": "unknown",
+    "os": "unknown"
   }
 ]
