@@ -5,6 +5,8 @@
   <title>Dashboard Clicks Nâng Cao</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.0/dist/jsoneditor.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsoneditor@9.10.0/dist/jsoneditor.min.css">
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
     h2 { margin-bottom: 20px; }
@@ -12,6 +14,9 @@
     table { width: 100%; margin-top: 40px; }
     .valid { color: green; }
     .invalid { color: red; }
+    #jsoneditor { height: 400px; margin-top: 50px; }
+    .editor-header { margin-top: 40px; font-weight: bold; }
+    button.save-json { margin-top: 10px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -45,9 +50,15 @@
     <canvas id="zoneidChart"></canvas>
   </div>
 
+  <div class="editor-header">🛠 Chỉnh sửa file clicks.json</div>
+  <div id="jsoneditor"></div>
+  <button class="save-json" onclick="saveJSON()">💾 Lưu clicks.json</button>
+
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script>
+    let editor;
+
     async function loadDashboard() {
       const res = await fetch('/clicks.json');
       const data = await res.json();
@@ -81,6 +92,26 @@
       renderChart('statusChart', 'Tỷ lệ Click Hợp lệ & Không Hợp lệ', statusCount);
       renderChart('deviceChart', 'Top Thiết Bị', deviceCount);
       renderChart('zoneidChart', 'Top ZoneID (Publisher)', zoneidCount);
+
+      // Load JSON editor
+      const container = document.getElementById("jsoneditor");
+      const options = { mode: "code" };
+      editor = new JSONEditor(container, options);
+      editor.set(data);
+    }
+
+    async function saveJSON() {
+      const updated = editor.get();
+      try {
+        await fetch('/save-clicks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated)
+        });
+        alert('✅ clicks.json đã được lưu thành công!');
+      } catch (err) {
+        alert('❌ Lỗi khi lưu clicks.json');
+      }
     }
 
     function renderChart(canvasId, label, dataObj) {
