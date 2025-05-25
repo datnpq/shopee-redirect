@@ -59,8 +59,7 @@ app.get('/', async (req, res) => {
   const ipRaw = req.headers['x-forwarded-for'] || req.ip;
   const ip = ipRaw.split(',')[0].trim();
   const ua = req.headers['user-agent'] || 'unknown';
-
-  const isValid = (subid !== 'unknown' || zoneid !== 'unknown');
+  const isValid = ua.toLowerCase().includes('mozilla') || req.url.includes('redirect_to_shopee');
 
   if (isValid) {
     console.log(`📥 Click hợp lệ từ IP ${ip}`);
@@ -107,6 +106,16 @@ app.get('/', async (req, res) => {
   </html>
   `;
   res.send(html);
+});
+
+// Route /stats để xem logs
+app.get('/stats', (req, res) => {
+  if (fs.existsSync(CLICK_LOG_PATH)) {
+    const logs = JSON.parse(fs.readFileSync(CLICK_LOG_PATH));
+    res.json(logs);
+  } else {
+    res.json([]);
+  }
 });
 
 app.get('/dashboard', (req, res) => {
