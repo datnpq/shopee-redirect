@@ -17,13 +17,11 @@ async function notifyTelegram(data) {
 🆔 *SubID:* \`${data.subid}\`
 🌐 *ZoneID:* \`${data.zoneid}\`
 📍 *IP:* \`${data.ip}\`
-🗺 *Country:* \`${data.country}\`
-🏙 *City:* \`${data.city}\`
+🗺 *Quốc gia:* \`${data.country}\`
+🏙 *Thành phố:* \`${data.city}\`
 🌐 *ISP:* \`${data.isp}\`
 📱 *Thiết bị:* \`${data.ua}\`
-📟 *Device:* \`${data.device}\`
-🧠 *OS:* \`${data.os}\`
-🕹 *Status:* \`${data.status}\`
+🕹 *Trạng thái:* \`${data.status}\`
 🕒 *Thời gian:* ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`;
 
   try {

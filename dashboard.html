@@ -25,9 +25,10 @@
         <th>🌐 ZoneID</th>
         <th>📍 IP</th>
         <th>📱 Thiết bị</th>
+        <th>🧠 OS</th>
         <th>🗺 Quốc gia</th>
-        <th>💻 OS</th>
-        <th>📡 Carrier</th>
+        <th>🏙 Thành phố</th>
+        <th>🌐 ISP</th>
         <th>📌 Trạng thái</th>
       </tr>
     </thead>
@@ -62,9 +63,10 @@
           <td>${click.zoneid}</td>
           <td>${click.ip}</td>
           <td>${click.device || click.ua}</td>
-          <td>${click.country}</td>
           <td>${click.os}</td>
-          <td>${click.carrier || '-'}</td>
+          <td>${click.country}</td>
+          <td>${click.city}</td>
+          <td>${click.isp}</td>
           <td class="${click.status}">${click.status}</td>
         `;
         tbody.appendChild(row);
