@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -6,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 // TELEGRAM CONFIG
 const TELEGRAM_BOT_TOKEN = '7206799463:AAFU0vGm5NBkC1qWfwF24tlCRTn_O6yxO3o';
 const TELEGRAM_CHAT_ID = '5479175202';
+const CLICK_LOG_PATH = path.join(__dirname, 'clicks.json');
 
 // Gửi tin nhắn Telegram
 async function notifyTelegram(subid, zoneid, ip, ua) {
@@ -16,7 +19,7 @@ async function notifyTelegram(subid, zoneid, ip, ua) {
                   `📱 Thiết bị: \`${ua}\``;
 
   try {
-    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -25,30 +28,47 @@ async function notifyTelegram(subid, zoneid, ip, ua) {
         parse_mode: 'Markdown'
       })
     });
-
-    const data = await res.json();
-    if (!data.ok) console.error('❌ Telegram API error:', data);
   } catch (err) {
-    console.error('❌ Telegram network error:', err);
+    console.error('❌ Telegram error:', err);
   }
 }
 
-// Route redirect
+// Lưu log click
+function logClick({ subid, zoneid, ip, ua }) {
+  const click = {
+    time: new Date().toISOString(),
+    subid,
+    zoneid,
+    ip,
+    ua
+  };
+
+  let log = [];
+  if (fs.existsSync(CLICK_LOG_PATH)) {
+    log = JSON.parse(fs.readFileSync(CLICK_LOG_PATH, 'utf-8'));
+  }
+
+  log.unshift(click); // mới nhất ở đầu
+  fs.writeFileSync(CLICK_LOG_PATH, JSON.stringify(log.slice(0, 1000), null, 2)); // giữ tối đa 1000 dòng
+}
+
+// Route redirect chính
 app.get('/', async (req, res) => {
   const subid = req.query.subid || 'unknown';
   const zoneid = req.query.zoneid || 'unknown';
   const ip = req.headers['x-forwarded-for'] || req.ip;
   const ua = req.headers['user-agent'] || 'unknown';
 
-  // Gửi Telegram nếu có subid hợp lệ (chặn crawler spam)
-  if (subid !== 'unknown' && subid.length > 1) {
-    console.log(`📥 New click: ${subid} | zone: ${zoneid} | ip: ${ip}`);
+  const isValid = (subid !== 'unknown' || zoneid !== 'unknown');
+
+  if (isValid) {
+    console.log(`📥 Click hợp lệ từ IP ${ip}`);
+    logClick({ subid, zoneid, ip, ua });
     await notifyTelegram(subid, zoneid, ip, ua);
   } else {
     console.log(`🤖 Bỏ qua click không hợp lệ từ IP ${ip}`);
   }
 
-  // HTML trả về
   const html = `
   <!DOCTYPE html>
   <html lang="vi">
@@ -85,11 +105,19 @@ app.get('/', async (req, res) => {
     </body>
   </html>
   `;
-
   res.send(html);
 });
 
-// Start server
+// Route /stats để xem logs
+app.get('/stats', (req, res) => {
+  if (fs.existsSync(CLICK_LOG_PATH)) {
+    const logs = JSON.parse(fs.readFileSync(CLICK_LOG_PATH));
+    res.json(logs);
+  } else {
+    res.json([]);
+  }
+});
+
 app.listen(PORT, () => {
-  console.log(`🚀 Shopee redirect bot chạy tại http://localhost:${PORT}`);
+  console.log(`🚀 Shopee redirect bot running at http://localhost:${PORT}`);
 });
