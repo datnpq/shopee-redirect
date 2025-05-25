@@ -45,7 +45,11 @@ function logClick({ subid, zoneid, ip, ua }) {
 
   let log = [];
   if (fs.existsSync(CLICK_LOG_PATH)) {
-    log = JSON.parse(fs.readFileSync(CLICK_LOG_PATH, 'utf-8'));
+    try {
+  log = JSON.parse(fs.readFileSync(CLICK_LOG_PATH, 'utf-8'));
+} catch (e) {
+  log = [];
+}
   }
 
   log.unshift(click); // mới nhất ở đầu
@@ -109,6 +113,8 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/dashboard', (req, res) => {
+  const auth = req.query.key;
+  if (auth !== 'D@t12345') return res.status(403).send('🚫 Không có quyền truy cập');
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
