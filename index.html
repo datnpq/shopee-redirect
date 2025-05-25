@@ -5,28 +5,29 @@
     <title>Đang chuyển hướng...</title>
 
     <!-- Google tag (gtag.js) – GA4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4J7LFH0XTC"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4J7LFH0XTC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-      // Gửi thông tin tracking vào GA4
-      gtag('config', 'G-4J7LFH0XTC', {
-        page_path: window.location.pathname + window.location.search
-      });
+  // Cấu hình GA4
+  gtag('config', 'G-4J7LFH0XTC', {
+    page_path: window.location.pathname + window.location.search
+  });
 
-      // Gửi sự kiện custom: redirect_to_shopee
-      gtag('event', 'redirect_to_shopee', {
-        event_category: 'engagement',
-        event_label: window.location.href
-      });
+  // Log sự kiện redirect
+  gtag('event', 'redirect_to_shopee', {
+    event_category: 'engagement',
+    event_label: window.location.href
+  });
 
-      // Redirect sau 0.5 giây
-      setTimeout(function () {
-        window.location.href = "https://s.shopee.vn/3LEXW9cvAH";
-      }, 500);
-    </script>
+  // Chờ 1500ms rồi mới redirect
+  setTimeout(function () {
+    window.location.href = "https://s.shopee.vn/3LEXW9cvAH";
+  }, 1500);
+</script>
+
   </head>
   <body>
     <p>Đang chuyển sang Shopee... Vui lòng chờ trong giây lát.</p>
