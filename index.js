@@ -127,6 +127,9 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
+// Cho phép truy cập file clicks.json từ frontend
+app.use(express.static(__dirname));
+
 app.listen(PORT, () => {
   console.log(`🚀 Shopee redirect bot running at http://localhost:${PORT}`);
 });

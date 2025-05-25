@@ -1,12 +1,38 @@
 [
   {
-    "time": "2025-05-25T13:47:44.225Z",
-    "subid": "unknown",
-    "zoneid": "unknown",
-    "ip": "::1",
-    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36",
+    "time": "2025-05-25T13:11:01.123Z",
+    "subid": "abc123",
+    "zoneid": "site001",
+    "ip": "113.22.33.44",
+    "ua": "Mozilla/5.0 (Linux; Android 11)",
     "country": "VN",
-    "device": "unknown",
-    "os": "unknown"
+    "device": "Mobile",
+    "os": "Android",
+    "carrier": "Viettel",
+    "status": "valid"
+  },
+  {
+    "time": "2025-05-25T13:12:45.456Z",
+    "subid": "def456",
+    "zoneid": "site002",
+    "ip": "171.244.55.66",
+    "ua": "Mozilla/5.0 (Windows NT 10.0)",
+    "country": "VN",
+    "device": "Desktop",
+    "os": "Windows",
+    "carrier": "-",
+    "status": "valid"
+  },
+  {
+    "time": "2025-05-25T13:14:10.789Z",
+    "subid": "zzz999",
+    "zoneid": "site003",
+    "ip": "103.10.10.10",
+    "ua": "curl/7.68.0",
+    "country": "VN",
+    "device": "Unknown",
+    "os": "Unknown",
+    "carrier": "-",
+    "status": "invalid"
   }
 ]

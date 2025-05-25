@@ -2,18 +2,21 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard Clicks</title>
+  <title>Dashboard Clicks Nâng Cao</title>
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-    table { width: 100%; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
     h2 { margin-bottom: 20px; }
+    .chart-container { width: 100%; max-width: 800px; margin: 20px auto; }
+    table { width: 100%; margin-top: 40px; }
     .valid { color: green; }
     .invalid { color: red; }
   </style>
 </head>
 <body>
-  <h2>📊 Bảng Click Shopee</h2>
+  <h2>📊 Dashboard Clicks Nâng Cao</h2>
+
   <table id="clicksTable" class="display">
     <thead>
       <tr>
@@ -28,43 +31,82 @@
         <th>📌 Trạng thái</th>
       </tr>
     </thead>
-    <tbody id="clicksBody">
-      <!-- dữ liệu sẽ được đổ vào đây -->
-    </tbody>
+    <tbody id="clicksBody"></tbody>
   </table>
+
+  <div class="chart-container">
+    <canvas id="statusChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="deviceChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="zoneidChart"></canvas>
+  </div>
 
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
   <script>
-    async function loadClicks() {
-      try {
-        const res = await fetch('/clicks.json');
-        const data = await res.json();
+    async function loadDashboard() {
+      const res = await fetch('/clicks.json');
+      const data = await res.json();
 
-        const tbody = document.getElementById('clicksBody');
-        data.forEach(click => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${new Date(click.time).toLocaleString('vi-VN')}</td>
-            <td>${click.subid}</td>
-            <td>${click.zoneid}</td>
-            <td>${click.ip}</td>
-            <td>${click.device || click.ua}</td>
-            <td>${click.country}</td>
-            <td>${click.os}</td>
-            <td>${click.carrier || '-'}</td>
-            <td class="${click.status}">${click.status}</td>
-          `;
-          tbody.appendChild(row);
-        });
+      const tbody = document.getElementById('clicksBody');
+      const statusCount = {}, deviceCount = {}, zoneidCount = {};
 
-        $('#clicksTable').DataTable();
-      } catch (err) {
-        console.error('❌ Không tải được dữ liệu:', err);
-      }
+      data.forEach(click => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${new Date(click.time).toLocaleString('vi-VN')}</td>
+          <td>${click.subid}</td>
+          <td>${click.zoneid}</td>
+          <td>${click.ip}</td>
+          <td>${click.device || click.ua}</td>
+          <td>${click.country}</td>
+          <td>${click.os}</td>
+          <td>${click.carrier || '-'}</td>
+          <td class="${click.status}">${click.status}</td>
+        `;
+        tbody.appendChild(row);
+
+        statusCount[click.status] = (statusCount[click.status] || 0) + 1;
+        deviceCount[click.device] = (deviceCount[click.device] || 0) + 1;
+        zoneidCount[click.zoneid] = (zoneidCount[click.zoneid] || 0) + 1;
+      });
+
+      $('#clicksTable').DataTable();
+
+      renderChart('statusChart', 'Tỷ lệ Click Hợp lệ & Không Hợp lệ', statusCount);
+      renderChart('deviceChart', 'Top Thiết Bị', deviceCount);
+      renderChart('zoneidChart', 'Top ZoneID (Publisher)', zoneidCount);
     }
 
-    loadClicks();
+    function renderChart(canvasId, label, dataObj) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(dataObj),
+          datasets: [{
+            label: label,
+            data: Object.values(dataObj),
+            backgroundColor: '#42a5f5'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: label
+            }
+          }
+        }
+      });
+    }
+
+    loadDashboard();
   </script>
 </body>
 </html>
