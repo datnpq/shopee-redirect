@@ -56,7 +56,8 @@ function logClick({ subid, zoneid, ip, ua }) {
 app.get('/', async (req, res) => {
   const subid = req.query.subid || 'unknown';
   const zoneid = req.query.zoneid || 'unknown';
-  const ip = req.headers['x-forwarded-for'] || req.ip;
+  const ipRaw = req.headers['x-forwarded-for'] || req.ip;
+  const ip = ipRaw.split(',')[0].trim();
   const ua = req.headers['user-agent'] || 'unknown';
 
   const isValid = (subid !== 'unknown' || zoneid !== 'unknown');
