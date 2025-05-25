@@ -118,6 +118,10 @@ app.get('/stats', (req, res) => {
   }
 });
 
+app.get('/view-stats', (req, res) => {
+  res.sendFile(path.join(__dirname, 'stats.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Shopee redirect bot running at http://localhost:${PORT}`);
 });
