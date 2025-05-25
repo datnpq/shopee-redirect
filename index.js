@@ -10,13 +10,18 @@ const TELEGRAM_BOT_TOKEN = '7206799463:AAFU0vGm5NBkC1qWfwF24tlCRTn_O6yxO3o';
 const TELEGRAM_CHAT_ID = '5479175202';
 const CLICK_LOG_PATH = path.join(__dirname, 'clicks.json');
 
+const country = req.query.country || 'VN';
+const device = req.query.device || 'unknown';
+const os = req.query.os || 'unknown';
+
 // Gửi tin nhắn Telegram
 async function notifyTelegram(subid, zoneid, ip, ua) {
-  const message = `📲 *Click Mới Về Shopee!*\n` +
-                  `🆔 SubID: \`${subid}\`\n` +
-                  `🌐 ZoneID: \`${zoneid}\`\n` +
-                  `📍 IP: \`${ip}\`\n` +
-                  `📱 Thiết bị: \`${ua}\``;
+ const message = `📲 *Click Mới Về Shopee!*
+🆔 *SubID:* \`${subid}\`
+🌐 *ZoneID:* \`${zoneid}\`
+📍 *IP:* \`${ip}\`
+📱 *Thiết bị:* \`${ua}\`
+🕹 *Thời gian:* ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`;
 
   try {
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
