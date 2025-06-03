@@ -116,13 +116,13 @@ app.get('/', async (req, res) => {
           event_label: window.location.href,
           event_callback: function () {
             setTimeout(() => {
-              window.location.href = "https://s.shopee.vn/3LEXW9cvAH";
+              window.location.href = "https://shorten.asia/qPubSBTa";
             }, 300);
           }
         });
 
         setTimeout(() => {
-          window.location.href = "https://s.shopee.vn/3LEXW9cvAH";
+          window.location.href = "https://shorten.asia/qPubSBTa";
         }, 2500);
       </script>
     </head>
