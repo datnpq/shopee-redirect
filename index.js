@@ -116,13 +116,13 @@ app.get('/', async (req, res) => {
           event_label: window.location.href,
           event_callback: function () {
             setTimeout(() => {
-              window.location.href = "https://shorten.asia/qPubSBTa";
+              window.location.href = "https://tinyurl.com/278f5qqo";
             }, 300);
           }
         });
 
         setTimeout(() => {
-          window.location.href = "https://shorten.asia/qPubSBTa";
+          window.location.href = "https://tinyurl.com/278f5qqo";
         }, 2500);
       </script>
     </head>
